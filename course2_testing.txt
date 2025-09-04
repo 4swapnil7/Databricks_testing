@@ -1,3 +1,8 @@
+link for db account from PC - https://dbc-6b1195e8-d047.cloud.databricks.com/editor/notebooks/422501899801386?o=2920981618425947#command/8252519641109742
+
+
+
+
 Full refresh will truncate and recompute ALL tables in this pipeline from scratch. This can lead to data loss for non-idempotent sources. Are you sure you want to full refresh?
 in cdc, key specified column should be unique, else only one row gets selected and other record goes missing
 
@@ -9,83 +14,7 @@ rescued data helps to run code even if some records are corrupt, just marks them
 
 
 
-## insert data in volume
-
-
-
-import json
-from datetime import datetime
-import random
-import pandas as pd
-
-data = [
-    {
-        "emp_name": "himanshu",
-        "course_id": 1,
-        "course_completed": "Y",
-        "order_id": 11,
-        "age": 24
-    },
-    {
-        "emp_name": "atul",
-        "course_id": 1,
-        "course_completed": "N",
-        "order_id": 21,
-        "age": 23
-    },
-    {
-        "emp_name": "rohit",
-        "course_id": 2,
-        "course_completed": "Y",
-        "order_id": 31,
-        "age": 24
-    },
-    {
-        "emp_name": "roshan",
-        "course_id": 3,
-        "course_completed": "N",
-        "order_id": None,
-        "age": 26
-    },
-    {
-        "emp_name": "swap",
-        "course_id": 4,
-        "course_completed": "Y",
-        "order_id": 51,
-        "age": 24
-    }
-]
-
-# Convert the data to a pandas DataFrame
-df = pd.DataFrame(data)
-
-# Save the DataFrame as a Parquet file in the specified volume
-df.to_parquet("/Volumes/workspace/default/course2/sample1.parquet", index=False)
-
-## copy a file in volume
-  dbutils.fs.cp("/Volumes/workspace/default/course2/sample1.parquet", "/Volumes/workspace/default/course2/sample1_copy.parquet")
-
-## read file from spark df, issue with integer type
-  from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType, LongType
-
-# Define the schema
-schema = StructType([
-    StructField("emp_name", StringType(), True),
-    StructField("course_id", LongType(), True),
-    StructField("course_completed", StringType(), True),
-    StructField("order_id", DoubleType(), True),
-    StructField("age", LongType(), True)
-])
-
-# Read the JSON file with the specified schema
-df = spark.read.format("parquet").schema(schema).load("/Volumes/workspace/default/course2/sample1.parquet")
-display(df)
-
-
-
 ## expectations
-
-  
 -- refresh > keeps ddl, updates data, keeps checkpoint
 -- replace > if ddl to be updated of source, clears old checkpoint, reprocess data from start
 
@@ -107,7 +36,10 @@ from stream read_files(
   )
   as
   select *,
-  current_timestamp() as processing_time
+  date_format(
+         from_utc_timestamp(current_timestamp(), 'Asia/Kolkata'),
+         'yyyy-MM-dd HH:mm:ss'
+       ) AS processing_time
   --,_metadata.file_name as source_file
   from stream stream_bronze1;
 
@@ -117,9 +49,7 @@ from stream read_files(
   where course_completed = 'Y'
   group by emp_name;
 
-
 ## cdc
-
 create or replace streaming table stream_silver_cdc
 comment 'scd type 2 historical data';
 
