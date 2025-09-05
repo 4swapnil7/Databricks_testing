@@ -1,5 +1,6 @@
 link for dbx account from PC - https://dbc-6b1195e8-d047.cloud.databricks.com/editor/notebooks/422501899801386?o=2920981618425947#command/8252519641109742
 
+course 2
 Full refresh will truncate and recompute ALL tables in this pipeline from scratch. This can lead to data loss for non-idempotent sources. Are you sure you want to full refresh?
 in cdc, key specified column should be unique, else only one row gets selected and other record goes missing
 
@@ -8,3 +9,52 @@ null	1	Record_deleted	null	2025-09-04 10:31:00	null	{"age":null,"_file_path":"/V
 rohit	2	Y	34	2025-09-04 10:31:00	null	{"age":24.0,"_file_path":"/Volumes/workspace/default/course2/sample2.parquet"}
 
 rescued data helps to run code even if some records are corrupt, just marks them as corrupt due to whatever issues.
+
+
+### course 3--
+
+
+#data governance in unity catalog
+
+unity catalog a standard which can support it all- structured and unstructured data
+access control- cloud location for catalog metastore, and a permission role needed, IAM for aws, spn/managed_identity for azure
+
+what catalogs we get depends on the workspace we are in.
+workspace is at top right, like a region, like us-east
+different catalog for different workspaces
+
+catalogs are like repositories for your schemas
+why need catalog? to partition your data assets
+
+schemas are repositories for 5 objects- table, view, volume, functions, model
+
+managed vs external tables
+
+volume like a library, also has managed vs external
+can put photo in volume and query it, or a json file
+
+check if you can connect to external sql source and query its table, postgre or whatever
+
+sample data, history, lineage, permission in catalog for any table
+
+
+##populate metastore
+
+use catalog catalog_name; use schema schema_name;
+insert overwrite table_name values
+(a,b,c),
+(d,e,f)
+
+catalog explorer = katalogam in jio
+
+
+
+
+
+Summary-
+Explain the importance of data governance and challenges in traditional data lake environments.
+Differentiate between managed and external tables, and evaluate the architecture of Unity Catalog.
+Utilize SQL commands to navigate and inspect metastore components, and assess data segregation strategies.
+Identify query lifecycle steps and Databricks roles for effective data governance and security within Unity Catalog.
+Implement privilege assignments and fine-grained access control strategies using SQL syntax and dynamic views in Databricks.
+Assess the effectiveness and implications of different privilege scenarios, inheritance models, and access control mechanisms in Unity Catalog.
